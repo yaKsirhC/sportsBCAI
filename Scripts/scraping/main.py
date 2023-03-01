@@ -54,11 +54,9 @@ for list in sched_urls:
     else:
         l = more_itertools.chunked(allpd_home, 18)
         l2 = []
-        for a in allpd_home:
+        for a in l:
             a.pop(0)
-            if a[0] == 'Team':
-                continue
-            elif a[0] == '':
+            if a[0] == 'Team' or a[0] == '' :
                 continue
             else:
                 l2.append(a)
