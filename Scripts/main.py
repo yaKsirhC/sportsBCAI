@@ -50,6 +50,17 @@ for list in sched_urls:
     if len(allpd_home) < 17:
         print('No data for current player')
         continue
+    else:
+        l2 = []
+        for a in allpd_home:
+            a.pop(0)
+            if a[0] == 'Team':
+                continue
+            elif a[0] == '':
+                continue
+            else:
+                l2.append(a)
+    print(l2)
     print('Writing to DB')
     cur.execute("INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
                     "?, ?, ?, ?, ?, ?, ?)", (None, allpd_home[0], allpd_home[1], allpd_home[2],
