@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from sqlite_init import init_player_db
 import get_sched_urls
+import more_itertools
 
 con, cur = init_player_db()
 
@@ -51,6 +52,7 @@ for list in sched_urls:
         print('No data for current player')
         continue
     else:
+        l = more_itertools.chunked(allpd_home, 18)
         l2 = []
         for a in allpd_home:
             a.pop(0)
