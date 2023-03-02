@@ -2,7 +2,7 @@ import sqlite3
 
 
 def init_player_db():
-    con = sqlite3.connect('1.db')
+    con = sqlite3.connect('1.db', check_same_thread=False)
     cur = con.cursor()
     cur.execute("""CREATE TABLE IF NOT EXISTS players (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
