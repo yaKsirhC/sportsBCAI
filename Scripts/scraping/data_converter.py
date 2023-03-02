@@ -6,3 +6,6 @@ def free_missed_conv(string_ftmissed):
     return (accomplished, aggregate)
 def percent_conv(percentage):
     return float(percentage.replace('%', ''))/100
+def chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
