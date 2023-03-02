@@ -9,7 +9,7 @@ import data_converter
 
 con, cur = init_player_db()
 
-player_position_dict = {'SG': 0, 'C': 1, 'SF': 2, 'PG': 3, 'PF': 4}
+player_position_dict = {'': 0,'SG': 1, 'C': 2, 'SF': 3, 'PG': 4, 'PF': 5}
 starter_dict = {'Starter': 0, 'Bench': 1}
 
 
@@ -94,12 +94,15 @@ for list in sched_urls:
         print('Writing to DB')
 
         for i in range(len(l3)):
+            isIn = cur.execute("SELECT ? FROM players", l3[i][0])
+            if isIn:
+                print(f'player {l3[i][0]}')
+                continue
             sql_str = """INSERT INTO players VALUES (NULL,"{}", "{}", "{}", {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})""".format(l3[i][0], l3[i][1], l3[i][2], l3[i][3], l3[i][4], l3[i][5], l3[i][6], l3[i][7],l3[i][8], l3[i][9], l3[i][10], l3[i][11], l3[i][12],
 l3[i][13], l3[i][14], l3[i][15], l3[i][16], l3[i][17]
 , l3[i][18], l3[i][19])
             # print(sql_str)
             cur.execute(sql_str)
-            # cur.execute("SELECT * FROM players")
             # print(f"Fetching all: {cur.fetchall()}")
 
 print('closing connection to db')
