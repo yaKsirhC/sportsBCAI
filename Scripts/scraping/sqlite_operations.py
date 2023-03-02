@@ -2,13 +2,13 @@ import more_itertools
 from sqlite_init import init_player_db
 import data_converter
 from colorama import Fore
-con, cur = init_player_db()
 
 player_position_dict = {'': 0, 'SG': 1, 'C': 2, 'SF': 3, 'PG': 4, 'PF': 5}
 starter_dict = {'Starter': 0, 'Bench': 1}
 
 
 def save_to_db(allpd):
+    con, cur = init_player_db()
     l = more_itertools.chunked(allpd, 18)
     l2 = []
     for a in l:
@@ -52,4 +52,5 @@ def save_to_db(allpd):
         # print(sql_str)
         cur.execute(sql_str)
         con.commit()
+    con.close()
 

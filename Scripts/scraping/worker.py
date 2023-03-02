@@ -1,12 +1,11 @@
 import bs4.element
 import requests
 from bs4 import BeautifulSoup
-from sqlite_init import init_player_db
 from sqlite_operations import save_to_db
 import time
+from colorama import Fore
 
 start = time.time()
-con, cur = init_player_db()
 
 def worker(sched_urls):
     for list in sched_urls:
@@ -57,9 +56,6 @@ def worker(sched_urls):
     
     end = time.time()
     dt = (end - start)
-    print('Took ' + str(round(dt, 8)) + 's')
-
-    print('closing connection to db')
-    con.commit()
-    con.close()
+    print('Time Elapsed: '+ Fore.BLUE + str(round(dt, 8)) + 's')
+    print(Fore.WHITE + 'closing connection to db')
     return worker
