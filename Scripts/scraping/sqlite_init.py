@@ -6,22 +6,28 @@ def init_player_db():
     cur = con.cursor()
     cur.execute("""CREATE TABLE IF NOT EXISTS players (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                name text,
-                isstarter text,
-                position text,
-                minutespergame text,
-                fgmissed text,
-                threepointsmiss text,
-                ftmissed text,
-                fic integer,
-                offreb integer,
-                defreg integer,
-                totalreb integer,
-                assists integer,
-                fouls integer,
-                steals integer,
-                turnovers integer,
-                block integer,
-                points integer)""")
+                name TEXT,
+                isstarter TEXT,
+                position TEXT,
+                minutespergame INTEGER,
+                fic REAL,
+                offreb INTEGER,
+                defreg INTEGER,
+                totalreb INTEGER,
+                assists INTEGER,
+                fouls INTEGER,
+                steals INTEGER,
+                turnovers INTEGER,
+                block INTEGER,
+                points INTEGER,
+                fgacc INTEGER,
+                fgagr INTEGER,
+                thrpacc INTEGER,
+                thrpagr INTEGER,
+                ftacc INTEGER,
+                ftagr INTEGER
+                )""")
+    
+    #20
 
     return (con,cur)
