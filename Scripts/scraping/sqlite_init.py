@@ -7,8 +7,8 @@ def init_player_db():
     cur.execute("""CREATE TABLE IF NOT EXISTS players (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 name TEXT,
-                isstarter TEXT,
-                position TEXT,
+                isstarter INTEGER,
+                position INTEGER,
                 minutespergame INTEGER,
                 fic REAL,
                 offreb INTEGER,
