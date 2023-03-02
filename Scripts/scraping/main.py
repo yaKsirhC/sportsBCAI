@@ -1,4 +1,3 @@
-from sqlite_init import init_player_db
 import get_sched_urls
 from data_converter import chunks
 import threading
