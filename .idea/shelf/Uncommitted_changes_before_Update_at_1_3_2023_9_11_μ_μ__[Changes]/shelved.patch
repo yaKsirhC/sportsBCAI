@@ -1,0 +1,148 @@
+Index: Scripts/main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import requests\r\nfrom bs4 import BeautifulSoup\r\n\r\nurl = 'https://basketball.realgm.com/international/league/1/Euroleague/team/142/ALBA-Berlin/schedule'\r\nreq = requests.get(url)\r\nsoup = BeautifulSoup(req, 'html.parser')\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Scripts/main.py b/Scripts/main.py
+--- a/Scripts/main.py	(revision 614dae0a7ddd3b72a9e4618004b09d66ed232792)
++++ b/Scripts/main.py	(date 1677696742699)
+@@ -1,6 +1,133 @@
++import bs4.element
++import sqlite3
+ import requests
+ from bs4 import BeautifulSoup
+ 
+-url = 'https://basketball.realgm.com/international/league/1/Euroleague/team/142/ALBA-Berlin/schedule'
+-req = requests.get(url)
+-soup = BeautifulSoup(req, 'html.parser')
++
++class Player():
++    def __init__(self, name, isstarter, position, minutespergame, fgmissed, threepointsmiss, ftmissed, fic,
++                 offreb, defreb, totalreb, assist, fouls, steals, turnovers, block, points):
++        self.name = name
++        self.isstarter = isstarter
++        self.position = position
++        self.minutespergame = minutespergame
++        self.fgmissed = fgmissed
++        self.threepointsmiss = threepointsmiss
++        self.ftmissed = ftmissed
++        self.fic = fic
++        self.offreb = offreb
++        self.defreb = defreb
++        self.totalreb = totalreb
++        self.assist = assist
++        self.fouls = fouls
++        self.steals = steals
++        self.turnovers = turnovers
++        self.block = block
++        self.points = points
++
++
++def get_sched_urls():
++    url = 'https://basketball.realgm.com/international/league/1/Euroleague/team/142/ALBA-Berlin/schedule'
++    req = requests.get(url)
++    soup = BeautifulSoup(req.text, 'html.parser')
++    teams = soup.find('div', id='teamnav').findAll('a', href=True)
++    print(type(teams))
++    allteams = []
++    for team in teams:
++        if isinstance(team, bs4.element.Tag):
++            team_name = str(team['href']).split('/')[-1]
++            team_sched_url = "https://basketball.realgm.com" + team['href'] + "/schedule/"
++            allteams.append([team_name, team_sched_url])
++    return allteams
++
++
++sched_urls = get_sched_urls()
++for list in sched_urls:
++    url = list[1]
++    req = requests.get(url)
++    soup = BeautifulSoup(req.text, 'html.parser')
++    table = soup.find('table', class_='basketball compact dms_colors').find('tbody')
++    m_url_sco = []
++    for row in table:
++        if isinstance(row, bs4.element.Tag):
++            d = row.find('td').findNextSibling('td').findNextSibling('td').find('a')
++            try:
++                match_url = "https://basketball.realgm.com" + d['href']
++                match_score = d.text
++                m_url_sco.append([match_url, match_score])
++            except TypeError:
++                continue
++
++for one in m_url_sco:
++    url = one[0]
++    req = requests.get(url)
++    soup = BeautifulSoup(req.text, 'html.parser')
++    table = soup.find('table', class_='tablesaw compact')
++    allpd_home = []
++    if table is not None:
++        rows = table.find_all('tr')
++        for tr in rows:
++            cols = tr.find_all('td')
++            for td in cols:
++                allpd_home.append(td.text.strip())
++
++    if table is not None:
++        table = table.findNext('table')
++        allpd_away = []
++        rows = table.find_all('tr')
++        for tr in rows:
++            cols = tr.find_all('td')
++            for td in cols:
++                allpd_away.append(td.text.strip())
++    else:
++        continue
++
++i = 1
++player1 = []
++for p in allpd_home:
++    if i == 0:
++        i = i + 1
++        print(i)
++        continue
++    elif i < 18:
++        print(i)
++        player1.append(p)
++        i = i + 1
++    else:
++        print(len(player1))
++        player_class = Player(player1[0], player1[1], player1[2], player1[3], player1[4], player1[5],
++                              player1[6], player1[7], player1[8], player1[9], player1[10], player1[11],
++                              player1[12], player1[13], player1[14], player1[15], player1[16])
++        print(player1)
++        i = 1
++        con = sqlite3.connect('1.db')
++        cur = con.cursor()
++        cur.execute("""CREATE TABLE players (
++                    ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
++                    name text,
++                    isstarter text,
++                    position text,
++                    minutespergame text,
++                    fgmissed text, 
++                    threepointsmiss text,
++                    ftmissed text,
++                    fic real,
++                    offreb integer,
++                    defreg integer,
++                    totalreb integer,
++                    assists integer,
++                    fouls integer,
++                    steals integer,
++                    turnovers integer,
++                    block integer,
++                    points integer)""")
++        cur.executemany("INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
++                        "?, ?, ?, ?, ?, ?, ?)", (None, player_class.name, player_class.isstarter, player_class.position,
++                                                 player_class.minutespergame,
++                                                 player_class.fgmissed, player_class.threepointsmiss, player_class.ftmissed,
++                                                 float(player_class.fic),
++                                                 int(player_class.offreb), int(player_class.defreb), int(player_class.totalreb),
++                                                 int(player_class.assist),
++                                                 int(player_class.fouls), int(player_class.steals), int(player_class.turnovers),
++                                          int(player_class.block),
++                                          int(player_class.points)))
+\ No newline at end of file

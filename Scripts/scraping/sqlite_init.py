@@ -40,7 +40,8 @@ def create_team_inst_db():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS team_instances(
             TeamID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            player_list_ID TEXT
+            name TEXT,
+            player_list_ID TEXT,
         )
     """)
 def init_match_inst_db():

@@ -1,7 +1,7 @@
 import more_itertools
-from sqlite_init import init_player_db
 import data_converter
 from colorama import Fore
+from sqlite_init import init_team_inst_db, init_match_inst_db, init_player_db
 
 player_position_dict = {'': 0, 'SG': 1, 'C': 2, 'SF': 3, 'PG': 4, 'PF': 5}
 starter_dict = {'Starter': 0, 'Bench': 1}
@@ -24,7 +24,7 @@ def l2_map(a):
     if not (a[0] == 'Team' or a[0] == ''):
         return a
 
-def save_to_db(allpd):
+def write_player(allpd):
     con, cur = init_player_db()
     l = more_itertools.chunked(allpd, 18)
     l2 = list(filter(lambda x: x is not None,map(l2_map , l ) ) )   
@@ -45,4 +45,19 @@ def save_to_db(allpd):
         # print(sql_str)
         cur.execute(sql_str)
         con.commit()
+    con.close()
+def write_team_inst(name, p_list):
+    con, cur = init_team_inst_db()
+    sql_str = 'INSERT INTO team_instances VALUES (NULL, "{}", "{}")'.format(name, p_list)
+    cur.execute(sql_str)
+    con.commit()
+    con.close()
+
+def write_match_inst(team_list, score_list ):
+    con, cur = init_match_inst_db()
+    team1, team2 = team_list
+    score1, score2 = score_list
+    sql_str = 'INSERT INTO team_instances VALUES (NULL,{}, {}, {}, {})'.format(team1, team2, score1, score2)
+    cur.execute(sql_str)
+    con.commit()
     con.close()

@@ -58,7 +58,7 @@ def t2_map(a):
 sched_urls = get_team_urls()
 for list_var in sched_urls:
     url = list_var[1]
-    team = list_var[0]
+    team = list_var[0] # that's the team name? nai
     req = requests.get(url)
     soup = BeautifulSoup(req.text, 'html.parser')
     table = soup.find('table')
@@ -69,9 +69,20 @@ for list_var in sched_urls:
         team_players = list(map(lambda data: data.text.strip(), player))
     t1 = more_itertools.chunked(team_players, 8)
     t2 = list(filter(lambda a: a is not None ,map(t2_map, t1)))
+    p_ids = []
     for player in t2:
-       p_id = get_player_id(player[0])
-       print("player id is: " + str(p_id))
+        p_id = get_player_id(player[0])
+        print("player id is: " + str(p_id))
+        if p_id == 0:
+            print("player not in list " + str(player[0]))
+            continue
+        p_ids.append(p_id)
+        print("player id is: " + str(p_id))
+    sqlite_init.init_team_inst_db()
+    # cur.execute("INSERT INTO team_instance (TeamID, name, Player_IDS) VALUES (NULL, {} , {} )".format(team_name,player_id_list)),
+    # (team, p_ids) ???? to onoma tis omadas kai player ids
+    # ego to evala, tha ta simblirosoume meta
+    con.commit()
     
 print("complete")
 con.close()

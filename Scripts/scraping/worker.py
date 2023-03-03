@@ -1,9 +1,8 @@
 import bs4.element
 import requests
 from bs4 import BeautifulSoup
-from sqlite_operations import save_to_db
+from sqlite_operations import write_player
 from timer import py_timer
-
 
 def m_url_sco_map(row):
     if isinstance(row, bs4.element.Tag):
@@ -14,6 +13,12 @@ def m_url_sco_map(row):
         match_score = d.text
         return [match_url, match_score]
 
+def get_match_score(soup, score_num):
+    match_score_soup = soup.find('h2', style='line-height: 2em; margin-top: 1em;').find('a')
+    home_name_score = [match_score_soup.text, score_num[3:].split('-')[0].strip()]
+    away_name_score = [match_score_soup.findNext('a').text, score_num[3:].split('-')[1].strip()]
+    return [home_name_score, away_name_score]
+
 def worker(sched_urls):
     timer = py_timer()
     for list_var in sched_urls:
@@ -22,11 +27,11 @@ def worker(sched_urls):
         soup = BeautifulSoup(req.text, 'html.parser')
         table = soup.find('table', class_='basketball compact dms_colors').find('tbody')
         m_url_sco = list(filter(lambda x: x is not None,map(m_url_sco_map, table)))
-
         for one in m_url_sco:
             url = one[0]
             req = requests.get(url)
             soup = BeautifulSoup(req.text, 'html.parser')
+            match_score = get_match_score(soup, one[1])
             table = soup.find('table', class_='tablesaw compact')
             if table is None:
                 continue
@@ -36,7 +41,7 @@ def worker(sched_urls):
             boxscore = soup.find('div', class_="boxscore-gamedetails")
             teams = list(map(lambda one: one.text, boxscore.findAll('a', style="text-decoration: none;") ))
             allpd_home = []
-
+# 
             rows = table.find_all('tr')
             for tr in rows:
                 cols = tr.find_all('td')
@@ -54,7 +59,6 @@ def worker(sched_urls):
                 cols = tr.find_all('td')
                 allpd_away = list(map(lambda td: td.text.strip(), cols ))
             # print(allpd_home)
-            save_to_db(allpd_home)
-
+            write_player(allpd_home)
     timer.print_time_elapsed()
     print('closing connection to db')
