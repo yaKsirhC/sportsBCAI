@@ -1,54 +1,30 @@
-import more_itertools
-import data_converter
 from colorama import Fore
 from sqlite_init import init_team_inst_db, init_match_inst_db, init_player_db
-
-player_position_dict = {'': 0, 'SG': 1, 'C': 2, 'SF': 3, 'PG': 4, 'PF': 5}
-starter_dict = {'Starter': 0, 'Bench': 1}
-
-def l3_map(l):
-    l[1] = starter_dict[l[1]]
-    l[2] = player_position_dict[l[2]]
-    l[3] = data_converter.minutespergame_conv(l[3])
-    fmacc, fmagr = (data_converter.free_missed_conv(l[4]))
-    thrpacc, thrpagr = (data_converter.free_missed_conv(l[5]))
-    ftacc, ftagr = (data_converter.free_missed_conv(l[6]))
-    shots_list = [fmacc, fmagr, thrpacc, thrpagr, ftacc, ftagr]
-    l.extend(shots_list)
-    l[7] = float(l[7])
-    l[8:17] = [eval(i) for i in l[8:17]]
-    del l[4:7]
-    return l
-def l2_map(a):
-    a.pop(0)
-    if not (a[0] == 'Team' or a[0] == ''):
-        return a
-
-def write_player(allpd):
+import re
+def write_player(p_data):
     con, cur = init_player_db()
-    l = more_itertools.chunked(allpd, 18)
-    l2 = list(filter(lambda x: x is not None,map(l2_map , l ) ) )   
-    l3 = list(map(l3_map, l2))
-
-    for i in range(len(l3)):
-        cur.execute('SELECT * FROM players WHERE name="{}"'.format(l3[i][0]))
+    for i in range(len(p_data)):
+        cur.execute('SELECT * FROM players WHERE name="{}"'.format(p_data[i][0]))
         fetch = cur.fetchone()
         if fetch:
-            print('Player '+ Fore.YELLOW + str(l3[i][0]) + Fore.WHITE + ' exists in db.')
+            print('Player '+ Fore.YELLOW + str(p_data[i][0]) + Fore.WHITE + ' exists in db.')
             continue
-        print('Writing player '+ Fore.CYAN + str(l3[i][0]) + Fore.WHITE + ' in database.')
+        print('Writing player '+ Fore.CYAN + str(p_data[i][0]) + Fore.WHITE + ' in database.')
         sql_str = """INSERT INTO players VALUES (NULL,"{}", "{}", "{}", {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})""".format(
-            l3[i][0], l3[i][1], l3[i][2], l3[i][3], l3[i][4], l3[i][5], l3[i][6], l3[i][7], l3[i][8], l3[i][9],
-            l3[i][10], l3[i][11], l3[i][12],
-            l3[i][13], l3[i][14], l3[i][15], l3[i][16], l3[i][17]
-            , l3[i][18], l3[i][19])
+            p_data[i][0], p_data[i][1], p_data[i][2], p_data[i][3], p_data[i][4], p_data[i][5], p_data[i][6], p_data[i][7], p_data[i][8], p_data[i][9],
+            p_data[i][10], p_data[i][11], p_data[i][12],
+            p_data[i][13], p_data[i][14], p_data[i][15], p_data[i][16], p_data[i][17]
+            , p_data[i][18], p_data[i][19])
         # print(sql_str)
         cur.execute(sql_str)
         con.commit()
     con.close()
+
 def write_team_inst(name, p_list):
     con, cur = init_team_inst_db()
-    sql_str = 'INSERT INTO team_instances VALUES (NULL, "{}", "{}")'.format(name, p_list)
+    parsed_p_list = list(map(lambda string_name: re.sub(string=string_name,pattern="'", repl=" "), p_list ))
+    sql_str = """INSERT INTO team_instances VALUES (NULL, "{}", "{}")""".format(name, parsed_p_list)
+    print('Writing team '+ Fore.GREEN + str(name) + Fore.WHITE + ' in database.')
     cur.execute(sql_str)
     con.commit()
     con.close()
@@ -57,7 +33,9 @@ def write_match_inst(team_list, score_list ):
     con, cur = init_match_inst_db()
     team1, team2 = team_list
     score1, score2 = score_list
-    sql_str = 'INSERT INTO team_instances VALUES (NULL,{}, {}, {}, {})'.format(team1, team2, score1, score2)
+    sql_str = """INSERT INTO match_instances VALUES (NULL,"{}", "{}", {}, {})""".format(team1, team2, score1, score2)
+    # print(sql_str)
+    print('Writing match '+ Fore.BLUE + str(team1) + "vs"+ str(team2) + Fore.WHITE + ' in database.')
     cur.execute(sql_str)
     con.commit()
     con.close()

@@ -41,7 +41,7 @@ def create_team_inst_db():
         CREATE TABLE IF NOT EXISTS team_instances(
             TeamID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             name TEXT,
-            player_list_ID TEXT,
+            player_list_ID TEXT
         )
     """)
 def init_match_inst_db():
@@ -54,11 +54,11 @@ def create_match_inst_db():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS match_instances(
             MatchID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            team_inst1_ID INTEGER,
-            team_inst2_ID INTEGER,
+            team_inst1_ID TEXT,
+            team_inst2_ID TEXT,
             Score1 INTEGER,
             Score2 INTEGER,
-            FOREIGN KEY(team_inst1_ID) REFERENCES team_instances(TeamID),
-            FOREIGN KEY(team_inst2_ID) REFERENCES team_instances(TeamID)
+            FOREIGN KEY(team_inst1_ID) REFERENCES team_instances(name),
+            FOREIGN KEY(team_inst2_ID) REFERENCES team_instances(name)
         )
     """)

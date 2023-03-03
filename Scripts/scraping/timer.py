@@ -9,3 +9,5 @@ class py_timer:
         end = time.time()
         dt = end - self.start
         print('Time Elapsed: '+ Fore.BLUE + str(round(dt, 8)) + 's' + Fore.WHITE)
+    def get_time(self):
+        return time.time()
