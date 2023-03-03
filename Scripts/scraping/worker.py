@@ -2,60 +2,59 @@ import bs4.element
 import requests
 from bs4 import BeautifulSoup
 from sqlite_operations import save_to_db
-import time
-from colorama import Fore
+from timer import py_timer
 
-start = time.time()
+
+def m_url_sco_map(row):
+    if isinstance(row, bs4.element.Tag):
+        d = row.find('td').findNextSibling('td').findNextSibling('td').find('a')
+        if d is None:
+            return
+        match_url = "https://basketball.realgm.com/" + d['href']
+        match_score = d.text
+        return [match_url, match_score]
 
 def worker(sched_urls):
-    for list in sched_urls:
-        url = list[1]
+    timer = py_timer()
+    for list_var in sched_urls:
+        url = list_var[1]
         req = requests.get(url)
         soup = BeautifulSoup(req.text, 'html.parser')
         table = soup.find('table', class_='basketball compact dms_colors').find('tbody')
-
-        m_url_sco = []
-        for row in table:
-            if isinstance(row, bs4.element.Tag):
-                d = row.find('td').findNextSibling('td').findNextSibling('td').find('a')
-                try:
-                    match_url = "https://basketball.realgm.com/" + d['href']
-                    match_score = d.text
-                    m_url_sco.append([match_url, match_score])
-                except TypeError:
-                    continue
+        m_url_sco = list(filter(lambda x: x is not None,map(m_url_sco_map, table)))
 
         for one in m_url_sco:
             url = one[0]
             req = requests.get(url)
             soup = BeautifulSoup(req.text, 'html.parser')
             table = soup.find('table', class_='tablesaw compact')
+            if table is None:
+                continue
             if 'preview' in url:
+                print('preview')
                 continue
             boxscore = soup.find('div', class_="boxscore-gamedetails")
-            teams = []
-            for one in boxscore.findAll('a', style="text-decoration: none;"):
-                teams.append(one.text)
+            teams = list(map(lambda one: one.text, boxscore.findAll('a', style="text-decoration: none;") ))
             allpd_home = []
-            if table is not None:
-                rows = table.find_all('tr')
-                for tr in rows:
-                    cols = tr.find_all('td')
-                    for td in cols:
-                        allpd_home.append(td.text.strip())
-            allpd_away = []
-            if table is not None:
-                table = table.findNext('table')
-                rows = table.find_all('tr')
-                for tr in rows:
-                    cols = tr.find_all('td')
-                    for td in cols:
-                        allpd_away.append(td.text.strip())
 
+            rows = table.find_all('tr')
+            for tr in rows:
+                cols = tr.find_all('td')
+                allpd_home.extend(list(map(lambda td: td.text.strip(), cols )))
+            
+            allpd_away = []
+
+            table = table.findNext('table')
+            rows = table.find_all('tr')
+            
+            if table is None:
+                continue
+
+            for tr in rows:
+                cols = tr.find_all('td')
+                allpd_away = list(map(lambda td: td.text.strip(), cols ))
+            # print(allpd_home)
             save_to_db(allpd_home)
-    
-    end = time.time()
-    dt = (end - start)
-    print('Time Elapsed: '+ Fore.BLUE + str(round(dt, 8)) + 's')
-    print(Fore.WHITE + 'closing connection to db')
-    return worker
+
+    timer.print_time_elapsed()
+    print('closing connection to db')

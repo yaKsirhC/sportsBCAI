@@ -6,36 +6,29 @@ from colorama import Fore
 player_position_dict = {'': 0, 'SG': 1, 'C': 2, 'SF': 3, 'PG': 4, 'PF': 5}
 starter_dict = {'Starter': 0, 'Bench': 1}
 
+def l3_map(l):
+    l[1] = starter_dict[l[1]]
+    l[2] = player_position_dict[l[2]]
+    l[3] = data_converter.minutespergame_conv(l[3])
+    fmacc, fmagr = (data_converter.free_missed_conv(l[4]))
+    thrpacc, thrpagr = (data_converter.free_missed_conv(l[5]))
+    ftacc, ftagr = (data_converter.free_missed_conv(l[6]))
+    shots_list = [fmacc, fmagr, thrpacc, thrpagr, ftacc, ftagr]
+    l.extend(shots_list)
+    l[7] = float(l[7])
+    l[8:17] = [eval(i) for i in l[8:17]]
+    del l[4:7]
+    return l
+def l2_map(a):
+    a.pop(0)
+    if not (a[0] == 'Team' or a[0] == ''):
+        return a
 
 def save_to_db(allpd):
     con, cur = init_player_db()
     l = more_itertools.chunked(allpd, 18)
-    l2 = []
-    for a in l:
-        a.pop(0)
-        if a[0] == 'Team':
-            continue
-        elif a[0] == '':
-            continue
-        else:
-            l2.append(a)
-    # print(l2)
-    l3 = []
-    for l in l2:
-        l[1] = starter_dict[l[1]]
-
-        l[2] = player_position_dict[l[2]]
-        l[3] = data_converter.minutespergame_conv(l[3])
-        fmacc, fmagr = (data_converter.free_missed_conv(l[4]))
-        thrpacc, thrpagr = (data_converter.free_missed_conv(l[5]))
-        ftacc, ftagr = (data_converter.free_missed_conv(l[6]))
-        shots_list = [fmacc, fmagr, thrpacc, thrpagr, ftacc, ftagr]
-        l.extend(shots_list)
-        l[7] = float(l[7])
-        l[8:17] = [eval(i) for i in l[8:17]]
-        del l[4:7]
-        l3.append(l)
-
+    l2 = list(filter(lambda x: x is not None,map(l2_map , l ) ) )   
+    l3 = list(map(l3_map, l2))
 
     for i in range(len(l3)):
         cur.execute('SELECT * FROM players WHERE name="{}"'.format(l3[i][0]))
@@ -53,4 +46,3 @@ def save_to_db(allpd):
         cur.execute(sql_str)
         con.commit()
     con.close()
-
