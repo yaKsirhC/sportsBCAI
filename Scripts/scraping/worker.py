@@ -80,7 +80,7 @@ def worker(sched_urls):
             home_team_name = match_score[0][0] + '-' + now
             away_team_name = match_score[1][0] + '-' + now
 
-            # sqlo.write_player(home_players_data)
+            sqlo.write_player(home_players_data)
 
             home_player_names = list(map(lambda player: player[0], home_players_data))
             sqlo.write_team_inst(home_team_name,home_player_names)
