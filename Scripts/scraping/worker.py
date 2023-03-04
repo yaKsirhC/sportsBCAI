@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import sqlite_operations as sqlo
 from timer import py_timer
 from data_converter import allpd_parser
+#asdasd
 
 
 def m_url_sco_map(row):
