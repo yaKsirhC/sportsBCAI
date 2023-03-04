@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import sqlite_operations as sqlo
 from timer import py_timer
 from data_converter import allpd_parser
+import datetime
 #asdasd
 
 
@@ -30,6 +31,12 @@ def get_match_date(soup):
     date_str = soup.find('strong').text
     date = datetime.datetime.strptime(date_str, '%B %d, %Y')
     return date
+
+def get_player_url(soup):
+    return
+
+def get_total_player_stats(url):
+    return
 
 def worker(sched_urls):
     i =  0
@@ -80,7 +87,7 @@ def worker(sched_urls):
             home_team_name = match_score[0][0] + '-' + now
             away_team_name = match_score[1][0] + '-' + now
 
-            sqlo.write_player(home_players_data)
+            # sqlo.write_player(home_players_data)
 
             home_player_names = list(map(lambda player: player[0], home_players_data))
             sqlo.write_team_inst(home_team_name,home_player_names)
