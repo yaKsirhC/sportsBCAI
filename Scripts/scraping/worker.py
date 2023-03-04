@@ -26,6 +26,11 @@ def get_match_score(soup, score_num):
         # print(soup)
         return 
 
+def get_match_date(soup):
+    date_str = soup.find('strong').text
+    date = datetime.datetime.strptime(date_str, '%B %d, %Y')
+    return date
+
 def worker(sched_urls):
     i =  0
     timer = py_timer()
@@ -40,6 +45,7 @@ def worker(sched_urls):
             req = requests.get(url)
             soup = BeautifulSoup(req.text, 'html.parser')
             match_score = get_match_score(soup, one[1])
+            match_date = get_match_date(soup)
             table = soup.find('table', class_='tablesaw compact')
             if table is None:
                 continue
