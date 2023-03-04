@@ -2,7 +2,7 @@ import more_itertools
 import requests
 from bs4 import BeautifulSoup
 import bs4.element
-import sqlite_init
+import sqlite_init as sqlite_init
 from timer import py_timer
 
 timer = py_timer()

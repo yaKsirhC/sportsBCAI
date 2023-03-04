@@ -1,21 +1,28 @@
 from colorama import Fore
 from sqlite_init import init_team_inst_db, init_match_inst_db, init_player_db
 import re
+
+
+
 def write_player(p_data):
     con, cur = init_player_db()
     for i in range(len(p_data)):
+        if p_data[i][0].find("'"):
+            p_data[i][0] = re.sub(string=p_data[i][0], pattern="'", repl=" ")
         cur.execute('SELECT * FROM players WHERE name="{}"'.format(p_data[i][0]))
         fetch = cur.fetchone()
         if fetch:
             print('Player '+ Fore.YELLOW + str(p_data[i][0]) + Fore.WHITE + ' exists in db.')
             continue
+
         print('Writing player '+ Fore.CYAN + str(p_data[i][0]) + Fore.WHITE + ' in database.')
+        with open('file.txt', 'a+') as f:
+            f.write("\n{}".format(p_data[i][0]))
         sql_str = """INSERT INTO players VALUES (NULL,"{}", "{}", "{}", {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})""".format(
             p_data[i][0], p_data[i][1], p_data[i][2], p_data[i][3], p_data[i][4], p_data[i][5], p_data[i][6], p_data[i][7], p_data[i][8], p_data[i][9],
             p_data[i][10], p_data[i][11], p_data[i][12],
             p_data[i][13], p_data[i][14], p_data[i][15], p_data[i][16], p_data[i][17]
             , p_data[i][18], p_data[i][19])
-        # print(sql_str)
         cur.execute(sql_str)
         con.commit()
     con.close()
