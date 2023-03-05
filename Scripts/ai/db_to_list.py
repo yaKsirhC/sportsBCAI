@@ -1,5 +1,7 @@
-import scraping.sqlite_init as db
 import re
+import sys
+sys.path.insert(0, '/path/to/application/app/folder')
+import scraping.sqlite_init as db
 
 def l_filter_map(i, l):
     X_match = l[i][0]

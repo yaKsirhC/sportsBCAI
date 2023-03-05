@@ -29,8 +29,16 @@ def write_player(p_data):
 
 def write_team_inst(name, p_list):
     con, cur = init_team_inst_db()
+    sql_str_find = """SELECT * FROM team_instances WHERE name={}""".format(name)
+
+    cur.execute(sql_str_find)
+    if cur.fetchone():
+        print('{} team instance already exists in db.'.format(name))
+        return
+
     parsed_p_list = list(map(lambda string_name: re.sub(string=string_name,pattern="'", repl=" "), p_list ))
     sql_str = """INSERT INTO team_instances VALUES (NULL, "{}", "{}")""".format(name, parsed_p_list)
+
     print('Writing team '+ Fore.GREEN + str(name) + Fore.WHITE + ' in database.')
     cur.execute(sql_str)
     con.commit()
