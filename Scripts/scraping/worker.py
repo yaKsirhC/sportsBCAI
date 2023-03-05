@@ -4,11 +4,26 @@ from bs4 import BeautifulSoup
 from timer import py_timer
 from data_converter import allpd_parser
 from helper_functions import get_match_date, get_match_score, m_url_sco_map, get_player_url, hydrate_allpd, write_full_match
+import more_itertools
 # import sqlite_operations as sqlo
 
 def get_team_name_f_sched(url):
     team_name = url.split('/')[-2]
     return team_name
+
+def tp_stats(list):
+    l = more_itertools.chunked(list, 24)
+    p_total_stats = []
+    for p in l:
+        p[3:5] = [ int(x) for x in p[3:5]]
+        p[5:25] = [float(x) for x in p[5:25]]
+        p_total_stats.append(p)
+    return p_total_stats
+
+
+def pro_total_p_stats(list):
+    l = more_itertools.chunked(list, 24)
+    p_total_stats = map(tp_stats, l)
 
 def get_total_players_stats(url, team):
     req2 = requests.get(url)
