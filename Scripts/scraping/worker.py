@@ -15,29 +15,42 @@ def tp_stats(list):
     l = more_itertools.chunked(list, 24)
     p_total_stats = []
     for p in l:
-        p[3:5] = [ int(x) for x in p[3:5]]
-        p[5:25] = [float(x) for x in p[5:25]]
+        p[3:5] = [int(x) for x in p[3:5]]
+        p[5:25] = [float(x) for x in p[6:25]]
         p_total_stats.append(p)
     return p_total_stats
 
 
 def pro_total_p_stats(list):
     l = more_itertools.chunked(list, 24)
-    p_total_stats = map(tp_stats, l)
+    p_total_stats = list(map(tp_stats, l))
+    return p_total_stats
 
-def get_total_players_stats(url, team):
+def get_total_player_stats(url, team):
     req2 = requests.get(url)
     soup = BeautifulSoup(req2.text, 'html.parser')
     t = soup.select_one("[name='International']+h1+p+h2+*") # ksexases to `+table` ? 
+    p_name0 = soup.find('h2', style="margin-top: 0;").text
+    p_name = p_name0.split('\xa0SF')[0]
     tbody = t.find('tbody')
     rows = tbody.findAll(lambda tag: tag.name=='tr')
     list = [c.text.strip() for c in rows]
+    p_stats = pro_total_p_stats(list)
     #process data
+    return
+
+def get_players_url_f_match(table):
+    table = table.tbody.findAll('tr')
+    p_urls = []
+    for row in table:      
+        p_url = row.findAll('td')[1].a['href']
+        p_url = str('https://basketball.realgm.com') + str(p_url)
+        p_urls.append(p_url)
+        print(p_urls)
     return
 
 def worker(sched_urls):
     i =  0
-    c = 0
     timer = py_timer()
     for list_var in sched_urls:
         url = list_var[1]
@@ -45,18 +58,20 @@ def worker(sched_urls):
         soup = BeautifulSoup(req.text, 'html.parser')
         table = soup.find('table', class_='basketball compact dms_colors').find('tbody')
         m_url_sco = list(filter(lambda x: x is not None,map(m_url_sco_map, table)))
-        if c == 0:
-            t_name = get_team_name_f_sched(url)
-            home_total_p_stats = get_total_players_stats(url, t_name)
+        c = 0
         for one in m_url_sco:
-
             url = one[0]
             req = requests.get(url)
             soup = BeautifulSoup(req.text, 'html.parser')
+
             match_score = get_match_score(soup, one[1])
             match_date = get_match_date(soup)
         
             table = soup.find('table', class_='tablesaw compact')
+            if c == 0:
+                t_name = get_team_name_f_sched(list_var[1])
+                p_url_list = get_players_url_f_match(table)
+                home_total_p_stats = get_total_player_stats(url, t_name)
 
             if table is None or 'preview' in url:
                 continue
@@ -104,6 +119,7 @@ def worker(sched_urls):
 
             # sqlo.write_match_inst([home_team_name, away_team_name], [home_score, away_score])
             i=i+1
+            c=c+1
 
     timer.print_time_elapsed()
     print(str(i))
