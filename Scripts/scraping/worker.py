@@ -12,19 +12,23 @@ def get_team_name_f_sched(url):
     return team_name
 
 def tp_stats(list):
-    l = more_itertools.chunked(list, 24)
-    p_total_stats = []
-    for p in l:
-        p[3:5] = [int(x) for x in p[3:5]]
-        p[5:25] = [float(x) for x in p[6:25]]
-        p_total_stats.append(p)
+    #l = more_itertools.chunked(list, 24)
+    p_total_stats = [] # nai 
+    for p in list: # to p vgainei string? # to list ti einai
+        for p3 in p:
+            p2 = p3.split('\n')
+            print("p is: ")
+            p2[3:5] = [int(x) for x in p2[3:5]]
+            p2[5:25] = [float(x) for x in p2[6:25]]
+            p_total_stats.append(p2) #ti egine? prospatho me tos .split na toftiakso # ti akribos kaneu auto to for loop
     return p_total_stats
 
 
-def pro_total_p_stats(list):
-    l = more_itertools.chunked(list, 24)
-    p_total_stats = list(map(tp_stats, l))
+def pro_total_p_stats(list_var):
+    l = more_itertools.chunked(list_var, 24)
+    p_total_stats = tp_stats(l)
     return p_total_stats
+# gia trexto
 
 def get_total_player_stats(url, team):
     req2 = requests.get(url)
@@ -35,9 +39,9 @@ def get_total_player_stats(url, team):
     tbody = t.find('tbody')
     rows = tbody.findAll(lambda tag: tag.name=='tr')
     list = [c.text.strip() for c in rows]
+    print(p_name) #sosta einai edo
     p_stats = pro_total_p_stats(list)
-    #process data
-    return
+    return p_stats
 
 def get_players_url_f_match(table):
     table = table.tbody.findAll('tr')
@@ -47,7 +51,7 @@ def get_players_url_f_match(table):
         p_url = str('https://basketball.realgm.com') + str(p_url)
         p_urls.append(p_url)
         print(p_urls)
-    return
+    return p_urls
 
 def worker(sched_urls):
     i =  0
@@ -71,7 +75,12 @@ def worker(sched_urls):
             if c == 0:
                 t_name = get_team_name_f_sched(list_var[1])
                 p_url_list = get_players_url_f_match(table)
-                home_total_p_stats = get_total_player_stats(url, t_name)
+                home_p_stats = []
+                for pl_url in p_url_list:
+                    print('player')
+                    home_p_stats.append(get_total_player_stats(pl_url, t_name))
+                    print(home_p_stats)
+            c += 1
 
             if table is None or 'preview' in url:
                 continue
