@@ -3,9 +3,10 @@ from sqlite_init import init_team_inst_db, init_match_inst_db, init_player_db
 import re
 
 
-
+#to json tha to valoume se iparxon table i se kanourgio?kainourgio kalitera. # edo eisai sorry evlepa kati.
+#ok #??
 def write_player(p_data):
-    con, cur = init_player_db()
+    con, cur = init_player_db() #se
     for i in range(len(p_data)):
         if p_data[i][0].find("'"):
             p_data[i][0] = re.sub(string=p_data[i][0], pattern="'", repl=" ")
@@ -29,7 +30,7 @@ def write_player(p_data):
 
 def write_team_inst(name, p_list):
     con, cur = init_team_inst_db()
-    sql_str_find = """SELECT * FROM team_instances WHERE name={}""".format(name)
+    sql_str_find = """SELECT * FROM team_instances WHERE (name="{}")""".format(name)
 
     cur.execute(sql_str_find)
     if cur.fetchone():
